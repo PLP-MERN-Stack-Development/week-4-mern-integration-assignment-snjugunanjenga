@@ -1,16 +1,107 @@
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19895120&assignment_repo_type=AssignmentRepo)
-# MERN Stack Integration Assignment
+# MERN Blog App
 
-This assignment focuses on building a full-stack MERN (MongoDB, Express.js, React.js, Node.js) application that demonstrates seamless integration between front-end and back-end components.
+A full-stack blog application built with the MERN stack (MongoDB, Express, React, Node.js). Users can register, log in, create categorized posts, and view posts from other members. Includes authentication, real-time updates, and a modern UI/UX.
 
-## Assignment Overview
+---
 
-You will build a blog application with the following features:
-1. RESTful API with Express.js and MongoDB
-2. React front-end with component architecture
-3. Full CRUD functionality for blog posts
-4. User authentication and authorization
-5. Advanced features like image uploads and comments
+## Features
+- User registration and login with JWT authentication
+- Create, edit, and delete blog posts
+- Categorize posts for easy discovery
+- View all posts or filter by category
+- Responsive, modern UI with a sticky navbar
+- Real-time updates with Socket.io
+- Protected routes for authenticated actions
+- Error handling and user feedback with toasts
+
+---
+
+## Tech Stack
+- **Frontend:** React, Vite, Tailwind CSS, Axios, React Router
+- **Backend:** Node.js, Express, MongoDB, Mongoose, JWT, Socket.io
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v16+ recommended)
+- MongoDB (local or Atlas)
+- pnpm (or npm/yarn)
+
+### 1. Clone the Repository
+```bash
+git clone <your-repo-url>
+cd week-4-mern-integration-assignment-snjugunanjenga
+```
+
+### 2. Setup the Backend
+```bash
+cd server
+cp .env.example .env # Edit .env with your MongoDB URI and JWT secret
+pnpm install # or npm install
+pnpm run dev # or npm run dev
+```
+
+### 3. Setup the Frontend
+```bash
+cd ../client
+cp .env.example .env # Create and set VITE_API_URL (see below)
+pnpm install # or npm install
+pnpm run dev # or npm run dev
+```
+
+#### Example `client/.env`:
+```
+VITE_API_URL=http://localhost:5000
+```
+
+#### Example `server/.env`:
+```
+MONGO_URI=mongodb://localhost:27017/mern-blog
+JWT_SECRET=your_jwt_secret
+```
+
+---
+
+## Usage
+- Register a new account or log in.
+- After login, first-time users are guided to create their first post.
+- Create posts and assign them to categories.
+- Browse posts from all users, filter by category, and interact.
+- Log out securely from the navbar.
+
+---
+
+## Development
+- **Frontend:** Located in `/client` (Vite + React)
+- **Backend:** Located in `/server` (Express + MongoDB)
+- API endpoints are prefixed with `/api` (e.g., `/api/posts`, `/api/auth`)
+- Real-time events are handled via Socket.io
+
+---
+
+## Scripts
+### Backend
+- `pnpm run dev` — Start backend with nodemon
+- `pnpm start` — Start backend in production mode
+
+### Frontend
+- `pnpm run dev` — Start frontend dev server
+- `pnpm build` — Build frontend for production
+- `pnpm preview` — Preview production build
+
+---
+
+## License
+MIT
+
+---
+
+## Contributors
+- **Cpt. N**
+- **Stechie-tech**
 
 ## Project Structure
 
@@ -37,13 +128,6 @@ mern-blog/
 │   └── package.json        # Server dependencies
 └── README.md               # Project documentation
 ```
-
-## Getting Started
-
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Follow the setup instructions in the `Week4-Assignment.md` file
-4. Complete the tasks outlined in the assignment
 
 ## Files Included
 
