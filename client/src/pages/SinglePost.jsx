@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
+import { toast } from 'sonner';
 
 const SinglePost = () => {
   const [post, setPost] = useState(null);
@@ -8,6 +10,7 @@ const SinglePost = () => {
   const [error, setError] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -30,9 +33,11 @@ const SinglePost = () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
         await axios.delete(`http://localhost:5000/api/posts/${id}`);
+        toast.success('Post deleted successfully!');
         navigate('/');
       } catch (err) {
         setError('Failed to delete post');
+        toast.error('Failed to delete post: ' + (err.response?.data?.message || err.message));
         console.error('Error deleting post:', err);
       }
     }
@@ -68,20 +73,22 @@ const SinglePost = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-start mb-6">
             <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => navigate(`/edit/${id}`)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Edit
-              </button>
-              <button
-                onClick={handleDelete}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-              >
-                Delete
-              </button>
-            </div>
+            {user && (
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => navigate(`/edit/${id}`)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
           
           {post.category && (

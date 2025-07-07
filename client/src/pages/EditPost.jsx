@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
+import { toast } from 'sonner';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../components/ui/select';
 
 const EditPost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
+  const [categories, setCategories] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, loading } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -32,16 +37,30 @@ const EditPost = () => {
     fetchPost();
   }, [id]);
 
+  useEffect(() => {
+    // Fetch categories
+    axios.get('http://localhost:5000/api/categories').then(res => {
+      setCategories(res.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!title.trim() || !content.trim()) {
       setError('Title and content are required');
+      toast.error('Title and content are required');
       return;
     }
 
     try {
-      setLoading(true);
+      setEditLoading(true);
       setError('');
       
       await axios.put(`http://localhost:5000/api/posts/${id}`, {
@@ -50,12 +69,14 @@ const EditPost = () => {
         category: category.trim() || undefined
       });
 
+      toast.success('Post updated successfully!');
       navigate(`/posts/${id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update post');
+      toast.error('Failed to update post: ' + (err.response?.data?.message || err.message));
       console.error('Error updating post:', err);
     } finally {
-      setLoading(false);
+      setEditLoading(false);
     }
   };
 
@@ -107,14 +128,16 @@ const EditPost = () => {
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
                 Category
               </label>
-              <input
-                type="text"
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter category (optional)"
-              />
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger id="category" className="w-full">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
@@ -135,10 +158,10 @@ const EditPost = () => {
             <div className="flex space-x-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={editLoading}
                 className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-6 py-2 rounded"
               >
-                {loading ? 'Updating...' : 'Update Post'}
+                {editLoading ? 'Updating...' : 'Update Post'}
               </button>
               
               <button

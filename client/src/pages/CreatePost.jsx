@@ -1,25 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
+import { toast } from 'sonner';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../components/ui/select';
 
 const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { user, loading } = useContext(AuthContext);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    // Fetch categories
+    axios.get('http://localhost:5000/api/categories').then(res => {
+      setCategories(res.data);
+    });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!title.trim() || !content.trim()) {
       setError('Title and content are required');
+      toast.error('Title and content are required');
       return;
     }
 
     try {
-      setLoading(true);
+      setCreateLoading(true);
       setError('');
       
       const response = await axios.post('http://localhost:5000/api/posts', {
@@ -28,12 +47,14 @@ const CreatePost = () => {
         category: category.trim() || undefined
       });
 
+      toast.success('Post created successfully!');
       navigate(`/posts/${response.data._id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create post');
+      toast.error('Failed to create post: ' + (err.response?.data?.message || err.message));
       console.error('Error creating post:', err);
     } finally {
-      setLoading(false);
+      setCreateLoading(false);
     }
   };
 
@@ -69,14 +90,16 @@ const CreatePost = () => {
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
                 Category
               </label>
-              <input
-                type="text"
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter category (optional)"
-              />
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger id="category" className="w-full">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
@@ -97,10 +120,10 @@ const CreatePost = () => {
             <div className="flex space-x-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={createLoading}
                 className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-6 py-2 rounded"
               >
-                {loading ? 'Creating...' : 'Create Post'}
+                {createLoading ? 'Creating...' : 'Create Post'}
               </button>
               
               <button
