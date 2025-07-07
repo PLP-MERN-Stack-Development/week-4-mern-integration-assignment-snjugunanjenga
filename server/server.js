@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { Server } = require('socket.io');
 const http = require('http');
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
@@ -14,8 +15,14 @@ const io = new Server(server, {
   },
 });
 
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.set('socketio', io); // Make io accessible in routes/controllers
+
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 // MongoDB connection (assumed already set up)
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });

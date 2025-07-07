@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../components/ui/select';
@@ -12,8 +12,11 @@ const CreatePost = () => {
   const [createLoading, setCreateLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);
+
+  const firstTime = location.state?.firstTime;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -23,8 +26,10 @@ const CreatePost = () => {
 
   useEffect(() => {
     // Fetch categories
-    axios.get('http://localhost:5000/api/categories').then(res => {
+    api.get('/api/categories').then(res => {
       setCategories(res.data);
+    }).catch(() => {
+      toast.error('Failed to load categories');
     });
   }, []);
 
@@ -41,7 +46,7 @@ const CreatePost = () => {
       setCreateLoading(true);
       setError('');
       
-      const response = await axios.post('http://localhost:5000/api/posts', {
+      const response = await api.post('/api/posts', {
         title: title.trim(),
         content: content.trim(),
         category: category.trim() || undefined
@@ -63,13 +68,16 @@ const CreatePost = () => {
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">Create New Post</h1>
-          
+          {firstTime && (
+            <div className="mb-4 p-4 bg-blue-100 text-blue-800 rounded">
+              Welcome! Start by creating your first post. Choose a category to help others find your content.
+            </div>
+          )}
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
-          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">

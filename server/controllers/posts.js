@@ -27,26 +27,6 @@ exports.getPost = async (req, res) => {
   }
 };
 
-// Create a new post
-exports.createPost = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-  try {
-    const { title, content, category } = req.body;
-    const post = new Post({
-      title,
-      content,
-      author: req.user.id, // From auth middleware
-      category,
-    });
-    await post.save();
-    res.status(201).json(post);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
 // Update a post
 exports.updatePost = async (req, res) => {
   const errors = validationResult(req);
@@ -97,6 +77,16 @@ exports.createPost = async (req, res) => {
     io.emit('newPost', post);
 
     res.status(201).json(post);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get the count of posts by the logged-in user
+exports.getUserPostsCount = async (req, res) => {
+  try {
+    const count = await Post.countDocuments({ author: req.user.id });
+    res.json({ count });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

@@ -1,13 +1,13 @@
-// src/pages/Signup.jsx - Signup form
+// src/pages/Login.jsx - Login form
 import { useForm } from 'react-hook-form';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { toast } from 'sonner';
 
-const Signup = () => {
+const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
@@ -17,18 +17,30 @@ const Signup = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.post('/api/auth/register', {
-        username: data.username,
+      const res = await api.post('/api/auth/login', {
         email: data.email,
         password: data.password,
       });
       if (res.data.token) {
-        // Optionally, store token and redirect
         localStorage.setItem('token', res.data.token);
-      navigate('/');
+        toast.success('Login successful!');
+        // Fetch user's post count
+        try {
+          const countRes = await api.get('/api/posts/mine/count');
+          if (countRes.data.count === 0) {
+            navigate('/create', { state: { firstTime: true } });
+          } else {
+            navigate('/');
+          }
+        } catch {
+          navigate('/');
+        }
+      } else {
+        setError('Invalid response from server');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Login failed');
+      toast.error('Login failed: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -36,19 +48,13 @@ const Signup = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-2xl font-bold mb-4">Sign Up</h1>
+      <h1 className="text-2xl font-bold mb-4">Login</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <Input
-            {...register('username', { required: 'Username is required' })}
-            placeholder="Username"
-          />
-          {errors.username && <span className="text-red-500">{errors.username.message}</span>}
-        </div>
         <div>
           <Input
             {...register('email', { required: 'Email is required', pattern: { value: /\S+@\S+\.\S+/, message: 'Invalid email' } })}
             placeholder="Email"
+            type="email"
           />
           {errors.email && <span className="text-red-500">{errors.email.message}</span>}
         </div>
@@ -61,7 +67,7 @@ const Signup = () => {
           {errors.password && <span className="text-red-500">{errors.password.message}</span>}
         </div>
         {error && <div className="text-red-500">{error}</div>}
-        <Button type="submit" disabled={loading}>{loading ? 'Signing up...' : 'Sign Up'}</Button>
+        <Button type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</Button>
       </form>
       <div className="mt-4 text-center">
         <span>Don't have an account? </span>
@@ -71,4 +77,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;
