@@ -100,8 +100,8 @@ MIT
 ---
 
 ## Contributors
-- **Cpt. N**
-- **Stechie-tech**
+- [Cpt. N](https://github.com/snjugunanjenga)
+- [Stechie-tech](https://github.com/stechie-tech)
 
 ## Project Structure
 
@@ -109,7 +109,6 @@ MIT
 mern-blog/
 ├── client/                 # React front-end
 │   ├── public/             # Static files
-│   ├── src/                # React source code
 │   │   ├── components/     # Reusable components
 │   │   ├── pages/          # Page components
 │   │   ├── hooks/          # Custom React hooks
