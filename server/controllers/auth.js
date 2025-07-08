@@ -7,7 +7,10 @@ const { validationResult } = require('express-validator');
 // Register a new user
 exports.register = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  if (!errors.isEmpty()) {
+    // Return all validation errors as messages
+    return res.status(400).json({ errors: errors.array().map(e => ({ msg: e.msg, param: e.param })) });
+  }
 
   try {
     const { username, email, password } = req.body;
@@ -31,6 +34,9 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 

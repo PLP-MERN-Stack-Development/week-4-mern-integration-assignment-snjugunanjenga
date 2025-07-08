@@ -25,16 +25,20 @@ const Signup = () => {
       });
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
+        toast.success('Registration successful!');
         navigate('/');
       }
     } catch (err) {
       if (err.response?.data?.errors) {
         // Backend validation errors (array)
         setValidationErrors(err.response.data.errors.map(e => e.msg));
+        toast.error('Please fix the highlighted errors.');
       } else if (err.response?.data?.message) {
         setError(err.response.data.message);
+        toast.error('Registration failed: ' + err.response.data.message);
       } else {
         setError('Registration failed');
+        toast.error('Registration failed');
       }
     } finally {
       setLoading(false);

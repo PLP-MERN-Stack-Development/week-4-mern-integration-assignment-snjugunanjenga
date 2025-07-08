@@ -24,23 +24,22 @@ const Login = () => {
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
         toast.success('Login successful!');
-        // Fetch user's post count
-        try {
-          const countRes = await api.get('/api/posts/mine/count');
-          if (countRes.data.count === 0) {
-            navigate('/create', { state: { firstTime: true } });
-          } else {
-            navigate('/');
-          }
-        } catch {
-          navigate('/');
-        }
+        navigate('/create', { state: { firstTime: true } });
       } else {
         setError('Invalid response from server');
+        toast.error('Invalid response from server');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
-      toast.error('Login failed: ' + (err.response?.data?.message || err.message));
+      if (err.response?.data?.errors) {
+        setError(err.response.data.errors.map(e => e.msg).join(', '));
+        toast.error('Please fix the highlighted errors.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+        toast.error('Login failed: ' + err.response.data.message);
+      } else {
+        setError('Login failed');
+        toast.error('Login failed');
+      }
     } finally {
       setLoading(false);
     }

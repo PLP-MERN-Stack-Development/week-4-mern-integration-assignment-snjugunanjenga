@@ -2,13 +2,22 @@
 const Post = require('../models/Post');
 const { validationResult } = require('express-validator');
 
-// Get all posts
+// Get all posts with filtering, sorting, and pagination
 exports.getPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
+    const { category, sort = 'desc', page = 1, limit = 10 } = req.query;
+    const filter = {};
+    if (category) filter.category = category;
+    const sortOption = { createdAt: sort === 'asc' ? 1 : -1 };
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const posts = await Post.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(parseInt(limit))
       .populate('category', 'name')
       .populate('author', 'username');
-    res.json(posts);
+    const total = await Post.countDocuments(filter);
+    res.json({ posts, total });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

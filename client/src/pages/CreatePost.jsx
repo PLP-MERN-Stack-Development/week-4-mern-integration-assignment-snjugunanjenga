@@ -41,7 +41,11 @@ const CreatePost = () => {
       toast.error('Title and content are required');
       return;
     }
-
+    if (!category) {
+      setError('Category is required');
+      toast.error('Category is required');
+      return;
+    }
     try {
       setCreateLoading(true);
       setError('');
@@ -49,14 +53,21 @@ const CreatePost = () => {
       const response = await api.post('/api/posts', {
         title: title.trim(),
         content: content.trim(),
-        category: category.trim() || undefined
+        category: category.trim()
       });
-
       toast.success('Post created successfully!');
       navigate(`/posts/${response.data._id}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create post');
-      toast.error('Failed to create post: ' + (err.response?.data?.message || err.message));
+      if (err.response?.data?.errors) {
+        setError(err.response.data.errors.map(e => e.msg).join(', '));
+        toast.error('Please fix the highlighted errors.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+        toast.error('Failed to create post: ' + err.response.data.message);
+      } else {
+        setError('Failed to create post');
+        toast.error('Failed to create post');
+      }
       console.error('Error creating post:', err);
     } finally {
       setCreateLoading(false);
@@ -98,7 +109,7 @@ const CreatePost = () => {
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
                 Category
               </label>
-              <Select value={category} onValueChange={setCategory}>
+              <Select value={category} onValueChange={setCategory} required>
                 <SelectTrigger id="category" className="w-full">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
