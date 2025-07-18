@@ -37,9 +37,11 @@ function NavigationMenu({
         <NavigationMenuItem>
           <Link to="/">Home</Link>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Link to="/create">Create Post</Link>
-        </NavigationMenuItem>
+        {user && (
+          <NavigationMenuItem>
+            <Link to="/create">Create Post</Link>
+          </NavigationMenuItem>
+        )}
         {user ? (
           <NavigationMenuItem>
             <button onClick={handleLogout}>Logout</button>

@@ -19,7 +19,9 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <Link to="/" className={`text-xl font-bold ${isActive('/') ? 'text-blue-700' : 'text-blue-600'} hover:text-blue-700 transition`}>BlogApp</Link>
-          <Link to="/create" className={`text-gray-700 hover:text-blue-600 transition ${isActive('/create') ? 'font-semibold underline' : ''}`}>Create Post</Link>
+          {user && (
+            <Link to="/create" className={`text-gray-700 hover:text-blue-600 transition ${isActive('/create') ? 'font-semibold underline' : ''}`}>Create Post</Link>
+          )}
         </div>
         <div className="flex items-center space-x-4">
           {user ? (

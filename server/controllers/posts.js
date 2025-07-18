@@ -72,7 +72,20 @@ exports.createPost = async (req, res) => {
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
     const { title, content, category } = req.body;
+
+    // Check if category exists
+    const Category = require('../models/Category');
+    const foundCategory = await Category.findById(category);
+    if (!foundCategory) {
+      return res.status(400).json({ message: 'Selected category does not exist' });
+    }
+
     const post = new Post({
       title,
       content,
@@ -87,7 +100,12 @@ exports.createPost = async (req, res) => {
 
     res.status(201).json(post);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error creating post:', error);
+    // Handle duplicate slug error
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.slug) {
+      return res.status(400).json({ message: 'A post with this title already exists. Please use a different title.' });
+    }
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 

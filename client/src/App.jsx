@@ -7,13 +7,15 @@ import EditPost from './pages/EditPost';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Navbar from './components/ui/navbar';
+import Home from './pages/Home';
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
       <Routes>
-        <Route path="/" element={<PostList />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/posts" element={<PostList />} />
         <Route path="/posts/:id" element={<SinglePost />} />
         <Route path="/create" element={<CreatePost />} />
         <Route path="/edit/:id" element={<EditPost />} />

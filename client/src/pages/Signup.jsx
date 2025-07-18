@@ -2,9 +2,10 @@ import { useForm } from 'react-hook-form';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import api from '../services/api';
 import { toast } from 'sonner';
+import { AuthContext } from '../context/AuthContext';
 
 const Signup = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -12,22 +13,16 @@ const Signup = () => {
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { register: registerUser } = useContext(AuthContext);
 
   const onSubmit = async (data) => {
     setLoading(true);
     setError(null);
     setValidationErrors([]);
     try {
-      const res = await api.post('/api/auth/register', {
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      });
-      if (res.data.token) {
-        localStorage.setItem('token', res.data.token);
-        toast.success('Registration successful!');
-        navigate('/');
-      }
+      await registerUser(data.username, data.email, data.password);
+      toast.success('Registration successful!');
+      navigate('/');
     } catch (err) {
       if (err.response?.data?.errors) {
         // Backend validation errors (array)

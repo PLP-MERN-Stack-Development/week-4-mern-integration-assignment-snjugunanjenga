@@ -20,7 +20,6 @@ const PostSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      required: true,
       unique: true,
     },
     excerpt: {
@@ -68,15 +67,14 @@ const PostSchema = new mongoose.Schema(
 
 // Create slug from title before saving
 PostSchema.pre('save', function (next) {
-  if (!this.isModified('title')) {
-    return next();
+  // Always generate slug if missing or title is modified
+  if (!this.slug || this.isModified('title')) {
+    this.slug = this.title
+      .toLowerCase()
+      .replace(/[^\w ]+/g, '') // Correct: keep word chars and spaces
+      .replace(/ +/g, '-');
   }
-  
-  this.slug = this.title
-    .toLowerCase()
-    .replace(/[^\w ]+/g, '')
-    .replace(/ +/g, '-');
-    
+  console.log('Slug generated:', this.slug, 'for title:', this.title);
   next();
 });
 
