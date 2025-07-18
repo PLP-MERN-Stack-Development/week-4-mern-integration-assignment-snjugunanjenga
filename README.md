@@ -94,6 +94,24 @@ JWT_SECRET=your_jwt_secret
 
 ---
 
+## Screenshots
+
+Here are some screenshots of the application in action:
+
+### Home Page
+![Home Page](./screenshots/HomePage.PNG)
+
+### Signup Page
+![Signup Page](./screenshots/SignupPage.PNG)
+
+### Login Page
+![Login Page](./screenshots/LoginPage.PNG)
+
+### Create New Post
+![Create New Post](./screenshots/CreateNewPost.PNG)
+
+---
+
 ## License
 MIT
 
